@@ -74,13 +74,33 @@ router.patch('/:id', function(req, res, next){
   });
 });
 
+// router.delete('/:id', function(req, res, next) {
+//   knex('classifieds')
+//     .where({ id: req.params.id })
+//     .del()
+//     .then(function(result) {
+//       res.send(result);
+//     })
+//     .catch(function(err) {
+//       console.log(err);
+//       next();
+//     });
+// });
+
+
 router.delete('/:id', function(req, res, next){
+  let classified;
   knex('classifieds')
-  .where('id', req.params.id)
-  .first()
-  .del()
+  .where({'id': req.params.id})
+  .select('id', 'description', 'item_image', 'price', 'title')
   .then((result) => {
-    res.sendStatus(result);
+    classified = result[0];
+    return knex('classifieds')
+    .del()
+    .where({'id': req.params.id});
+  })
+  .then(() =>{
+    res.send(classified);
   })
   .catch((err) => {
     console.log(err);
